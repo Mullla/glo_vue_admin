@@ -38,7 +38,7 @@ module.exports = class DomHelper {
       // присваиваем каждой текстовой ноде id, чтобы связать ее в дальнейшем с виртуальным dom
       wrapper.setAttribute("node_id", i);
 
-      // ? node.parentNode.contentEditable = true;
+      // node.parentNode.contentEditable = true;
     });
 
     return dom;

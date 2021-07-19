@@ -1,5 +1,6 @@
 const axios = require("axios");
 const DOMHelper = require("./domHelper");
+const EditorText = require("./editor-text");
 // эта библиотека нужна для того, чтобы обойти кэширование у браузера
 // обход кэширования происходит за счет добавления каждый рах рандомных данных
 require("./iframe-load");
@@ -24,7 +25,8 @@ module.exports = class Editor {
       .then(DOMHelper.serializeDomToString)
       .then((html) => axios.post("./api/saveTempPage.php", { html }))
       .then(() => this.iframe.load("../temp.html"))
-      .then(() => this.enableEditing());
+      .then(() => this.enableEditing())
+      .then(() => this.injectStyles())
   }
 
   // включить редактирование контента у всех наших текстовых тегов
@@ -32,23 +34,34 @@ module.exports = class Editor {
     this.iframe.contentDocument.body
       .querySelectorAll("text-editor")
       .forEach((element) => {
-        element.contentEditable = true;
-        element.addEventListener("input", () => {
-          this.onTextEdit(element);
-        });
+        const id = element.getAttribute("node_id");
+        const virtualElement = this.virtualDom.body.querySelector(`[node_id="${id}"]`)
+        new EditorText(element, virtualElement)
       });
   }
 
-  onTextEdit(element) {
-    const id = element.getAttribute("node_id");
-    this.virtualDom.body.querySelector(`[node_id="${id}"]`).innerHTML =
-      element.innerHTML;
-  }
+
 
   save() {
     const newDom = this.virtualDom.cloneNode(this.virtualDom);
     DOMHelper.unwrapTextNodes(newDom);
     const html = DOMHelper.serializeDomToString(newDom);
     axios.post("./api/savePage.php", { pageName: this.currentPage, html });
+  }
+
+  injectStyles() {
+    const style = this.iframe.contentDocument.createElement('style');
+    style.innerHTML = `
+      text-editor:hover {
+        outline: 2px solid orange;
+        outline-offset: 8px;
+      }
+      text-editor:focus {
+        outline: 2px solid lawngreen;
+        outline-offset: 8px;
+      }
+    `;
+
+    this.iframe.contentDocument.head.appendChild(style);
   }
 };
