@@ -20,6 +20,29 @@
     </div>
   </div> -->
 
+  <div id="app">
+    <div class="panel">
+      <button class="uk-button uk-button-primary" uk-toggle="target: #modal-save">Опубликовать</button>
+    </div>
+    
+    <div id="modal-save" uk-modal>
+      <div class="uk-modal-dialog uk-modal-body">
+        <h2 class="uk-modal-title">Сохранение</h2>
+        <p>Вы действительно хотите сохранить и опубликовать изменения?</p>
+        <p class="uk-text-right">
+          <button class="uk-button uk-button-danger uk-modal-close" type="button">Отмена</button>
+          <button class="uk-button uk-button-primary uk-modal-close" type="button" @click="onBtnSave">Сохранить</button>
+        </p>
+      </div>
+    </div>
+
+    <div class="loader" :class="{'active' : showLoader}">
+      <div uk-spinner="ratio: 3"></div>
+    </div>
+  </div>
+  
+
+
   <script src="bundle.js"></script>
 </body>
 </html>

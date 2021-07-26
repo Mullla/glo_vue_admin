@@ -2,7 +2,7 @@ module.exports = class DomHelper {
   // преобразует из строки в виртуальный dom, с помощью встроенного в js класса
   static parseStrToDom(str) {
     const parser = new DOMParser();
-    return parser.parseFromString(str, "application/xml");
+    return parser.parseFromString(str, "text/html");
   }
 
   // оборачивает все текстовые ноды в придуманный спец тег <text-editor>

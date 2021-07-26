@@ -11,11 +11,11 @@ module.exports = class Editor {
     this.iframe = document.querySelector("iframe");
   }
 
-  open(page) {
+  open(page, cb) {
     this.currentPage = page;
 
     axios
-      .get("../" + page)
+      .get("../" + page + '?rnd=' + Math.random()) // '?rnd=' + Math.random() добавлено, чтобы браузер не кэшировал запрос
       .then((res) => DOMHelper.parseStrToDom(res.data))
       .then(DOMHelper.wrapTextNodes)
       .then((dom) => {
@@ -27,6 +27,7 @@ module.exports = class Editor {
       .then(() => this.iframe.load("../temp.html"))
       .then(() => this.enableEditing())
       .then(() => this.injectStyles())
+      .then(cb)
   }
 
   // включить редактирование контента у всех наших текстовых тегов
@@ -40,13 +41,14 @@ module.exports = class Editor {
       });
   }
 
-
-
-  save() {
+  save(onSuccess, onError) {
     const newDom = this.virtualDom.cloneNode(this.virtualDom);
     DOMHelper.unwrapTextNodes(newDom);
     const html = DOMHelper.serializeDomToString(newDom);
-    axios.post("./api/savePage.php", { pageName: this.currentPage, html });
+    axios
+      .post("./api/savePage.php", { pageName: this.currentPage, html })
+      .then(onSuccess)
+      .catch(onError)
   }
 
   injectStyles() {
