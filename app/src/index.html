@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
   <link rel="stylesheet" href="style.css">
+  <!-- UIkit CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.7.1/dist/css/uikit.min.css" />
 </head>
 <body>
 
@@ -22,9 +24,36 @@
 
   <div id="app">
     <div class="panel">
-      <button class="uk-button uk-button-primary" uk-toggle="target: #modal-save">Опубликовать</button>
+      <div>
+        <button class="uk-button uk-button-secondary" uk-toggle="target: #modal-open">Открыть</button>
+      </div>
+      <div>
+        <button class="uk-button uk-button-primary" uk-toggle="target: #modal-save">Опубликовать</button>
+        
+          <button class="uk-button uk-button-default">
+            <span class="uk-text-muted" uk-icon="icon: cloud-download"></span>
+          </button>
+          <div class="uk-width-auto" uk-dropdown="pos: bottom-right">
+            <button class="uk-button uk-button-default uk-text-small" uk-toggle="target: #modal-backup">Восстановить из резервной копии</button>
+          </div>
+        
+      </div>
     </div>
     
+    <div id="modal-open" uk-modal>
+      <div class="uk-modal-dialog uk-modal-body">
+        <h2 class="uk-modal-title">Открыть</h2>
+        <ul class="uk-list uk-list-striped">
+          <li v-for="page in pageList" :key="page.index" @click="openPage(page)">
+            <a class="uk-link-text uk-modal-close" href="#" >{{ page }}</a>
+          </li>
+        </ul>
+        <p class="uk-text-right">
+          <button class="uk-button uk-button-danger uk-modal-close" type="button">Отмена</button>
+        </p>
+      </div>
+    </div>
+
     <div id="modal-save" uk-modal>
       <div class="uk-modal-dialog uk-modal-body">
         <h2 class="uk-modal-title">Сохранение</h2>
@@ -36,13 +65,30 @@
       </div>
     </div>
 
+    <div id="modal-backup" uk-modal>
+      <div class="uk-modal-dialog uk-modal-body">
+        <h2 class="uk-modal-title">Восстановление из резервной копии</h2>
+        <span v-if="backupList.length < 1">Резервных копий не найдено</span>
+        <ul class="uk-list uk-list-striped">
+          <li v-for="backup in backupList" :key="page.index">
+            <a class="uk-link-text uk-modal-close" href="#" @click="restoreBackup(backup)">Резервная копия: {{ backup.time }}</a>
+          </li>
+        </ul>
+        <p class="uk-text-right">
+          <button class="uk-button uk-button-danger uk-modal-close" type="button">Отмена</button>
+        </p>
+      </div>
+    </div>
+
     <div class="loader" :class="{'active' : showLoader}">
       <div uk-spinner="ratio: 3"></div>
     </div>
   </div>
   
 
-
+    <!-- UIkit JS -->
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.1/dist/js/uikit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.1/dist/js/uikit-icons.min.js"></script>
   <script src="bundle.js"></script>
 </body>
 </html>

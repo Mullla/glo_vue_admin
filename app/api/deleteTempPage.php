@@ -1,8 +1,5 @@
 <?php
-  $_POST = json_decode(file_get_contents('php://input'), true);
-
-
-  $file_to_remove = "../../" . $_POST["name"];
+  $file_to_remove = "../../_temp.html";
 
   if(file_exists($file_to_remove)) {
     unlink($file_to_remove);
