@@ -12,20 +12,11 @@
 <body>
 
   <iframe src frameborder="0"></iframe>
-
-  <!-- <div id="app">
-    <input type="text" v-model="newPageName">
-    <button @click="createPage">Создать страницу</button>
-
-    <div v-for="(page, index) in pageList" :key="page.index">
-      <div>{{ index+1 }}. {{ page }} <button @click="removePage(page)">×</button></div>
-    </div>
-  </div> -->
-
   <div id="app">
     <div class="panel">
       <div>
         <button class="uk-button uk-button-secondary" uk-toggle="target: #modal-open">Открыть</button>
+        <button class="uk-button uk-button-default" uk-toggle="target: #modal-meta">Редактор meta</button>
       </div>
       <div>
         <button class="uk-button uk-button-primary" uk-toggle="target: #modal-save">Опубликовать</button>
@@ -50,6 +41,29 @@
         </ul>
         <p class="uk-text-right">
           <button class="uk-button uk-button-danger uk-modal-close" type="button">Отмена</button>
+        </p>
+      </div>
+    </div>
+
+    <div id="modal-meta" uk-modal>
+      <div class="uk-modal-dialog uk-modal-body">
+        <h2 class="uk-modal-title">Редактировать meta-теги</h2>
+        <form>
+          <div class="uk-margin">
+            <input class="uk-input" type="text" placeholder="Title" v-model="meta.title">
+        </div>
+
+        <div class="uk-margin">
+            <textarea class="uk-textarea" rows="5" placeholder="Keywords" v-model="meta.keywords"></textarea>
+        </div>
+
+        <div class="uk-margin">
+          <textarea class="uk-textarea" rows="5" placeholder="Description" v-model="meta.description"></textarea>
+      </div>
+        </form>
+        <p class="uk-text-right">
+          <button class="uk-button uk-button-danger uk-modal-close" type="button">Отмена</button>
+          <button class="uk-button uk-button-primary uk-modal-close" type="button" @click="applyMeta">Применить</button>
         </p>
       </div>
     </div>
