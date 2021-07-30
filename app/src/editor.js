@@ -1,6 +1,7 @@
 const axios = require('axios');
 const DOMHelper = require('./domHelper');
 const EditorText = require('./editor-text');
+const EditorImage = require('./editor-image');
 const EditorMeta = require('./editor-meta');
 // эта библиотека нужна для того, чтобы обойти кэширование у браузера
 // обход кэширования происходит за счет добавления каждый рах рандомных данных
@@ -19,6 +20,7 @@ module.exports = class Editor {
       .get('../' + page + '?rnd=' + Math.random()) // '?rnd=' + Math.random() добавлено, чтобы браузер не кэшировал запрос
       .then((res) => DOMHelper.parseStrToDom(res.data))
       .then(DOMHelper.wrapTextNodes)
+      .then(DOMHelper.wrapImages)
       .then((dom) => {
         this.virtualDom = dom; // создаем переменную virtualDpm и записываем в нее dom
         return dom;
@@ -44,12 +46,23 @@ module.exports = class Editor {
         new EditorText(element, virtualElement);
       });
 
-      this.metaEditor = new EditorMeta(this.virtualDom)
+    this.iframe.contentDocument.body
+      .querySelectorAll('[editable_img_id]')
+      .forEach((element) => {
+        const id = element.getAttribute('editable_img_id');
+        const virtualElement = this.virtualDom.body.querySelector(
+          `[editable_img_id="${id}"]`
+        );
+        new EditorImage(element, virtualElement);
+      });
+
+    this.metaEditor = new EditorMeta(this.virtualDom);
   }
 
   save(onSuccess, onError) {
     const newDom = this.virtualDom.cloneNode(this.virtualDom);
     DOMHelper.unwrapTextNodes(newDom);
+    DOMHelper.unwrapImages(newDom);
     const html = DOMHelper.serializeDomToString(newDom);
     axios
       .post('./api/savePage.php', { pageName: this.currentPage, html })
@@ -60,7 +73,7 @@ module.exports = class Editor {
   injectStyles() {
     const style = this.iframe.contentDocument.createElement('style');
     style.innerHTML = `
-      text-editor:hover {
+      text-editor:hover, [editable_img_id]:hover {
         outline: 2px solid orange;
         outline-offset: 8px;
       }

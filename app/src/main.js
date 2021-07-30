@@ -6,7 +6,8 @@ const UIkit = require('uikit');
 // для объекта window создаем свойство editor, куда записываем наш созданный класс Editor
 window.editor = new Editor();
 
-new Vue({
+// сохранение vue в шлобальную переменную window.vue, чтобы к ней можно было обращаться из других модулей
+window.vue = new Vue({
   el: '#app',
   data() {
     return {
@@ -24,28 +25,25 @@ new Vue({
   },
   methods: {
     onBtnSave() {
-      this.showLoader = true;
+      this.enableLoader();
       window.editor.save(
         () => {
           this.loadBackupList();
-          this.showLoader = false;
+          this.disableLoader();
           UIkit.notification({ message: 'Опубликовано', status: 'success' });
         },
         () => {
-          this.showLoader = false;
-          UIkit.notification({
-            message: 'Ошибка сохранения',
-            status: 'danger',
-          });
+          this.disableLoader();
+          this.errorNotification('Ошибка сохранения')
         }
       );
     },
     openPage(page) {
       this.page = page;
       this.loadBackupList();
-      this.showLoader = true;
+      this.enableLoader();
       window.editor.open(page, () => {
-        this.showLoader = false;
+        this.disableLoader();
         this.meta = window.editor.metaEditor.getMeta()
       });
     },
@@ -68,7 +66,7 @@ new Vue({
           }
         )
         .then(() => {
-          this.showLoader = true;
+          this.enableLoader();
           return axios.post('./api/restoreBackup.php', {
             page: this.page,
             file: backup.file,
@@ -76,12 +74,24 @@ new Vue({
         })
         .then(() => {
           window.editor.open(this.page, () => {
-            this.showLoader = false;
+            this.disableLoader();
           });
         });
     },
     applyMeta() {
       window.editor.metaEditor.setMeta(this.meta.title, this.meta.keywords, this.meta.description)
+    },
+    enableLoader() {
+      this.showLoader = true;
+    },
+    disableLoader() {
+      this.showLoader = false;
+    },
+    errorNotification(msg) {
+      UIkit.notification({
+        message: msg,
+        status: 'danger',
+      });
     }
   },
   created() {

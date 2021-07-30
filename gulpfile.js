@@ -4,7 +4,7 @@ const browserify = require('browserify');
 const sass = require('gulp-sass')(require('sass'));
 const { parallel } = require('gulp');
 
-const dist = '/Users/mars/Sites/vue-php/admin';
+const dist = '/Users/mars/Sites/vue/vue-php/admin';
 
 gulp.task('copy-html', () => {
   return gulp.src('./app/src/index.html')
