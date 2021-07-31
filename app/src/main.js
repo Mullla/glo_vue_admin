@@ -19,8 +19,11 @@ window.vue = new Vue({
       meta: {
         title: '',
         keywords: '',
-        description: ''
-      }
+        description: '',
+      },
+      auth: false,
+      password: '',
+      loginError: false,
     };
   },
   methods: {
@@ -34,7 +37,7 @@ window.vue = new Vue({
         },
         () => {
           this.disableLoader();
-          this.errorNotification('Ошибка сохранения')
+          this.errorNotification('Ошибка сохранения');
         }
       );
     },
@@ -44,12 +47,12 @@ window.vue = new Vue({
       this.enableLoader();
       window.editor.open(page, () => {
         this.disableLoader();
-        this.meta = window.editor.metaEditor.getMeta()
+        this.meta = window.editor.metaEditor.getMeta();
       });
     },
     loadBackupList() {
-      axios.get('./backups/backups.json').then((res) => {
-        this.backupList = res.data.filter((backup) => {
+      axios.get('./backups/backups.json').then(res => {
+        this.backupList = res.data.filter(backup => {
           return backup.page === this.page;
         });
       });
@@ -79,7 +82,11 @@ window.vue = new Vue({
         });
     },
     applyMeta() {
-      window.editor.metaEditor.setMeta(this.meta.title, this.meta.keywords, this.meta.description)
+      window.editor.metaEditor.setMeta(
+        this.meta.title,
+        this.meta.keywords,
+        this.meta.description
+      );
     },
     enableLoader() {
       this.showLoader = true;
@@ -92,15 +99,48 @@ window.vue = new Vue({
         message: msg,
         status: 'danger',
       });
-    }
+    },
+    login() {
+      if (this.password.length > 5) {
+        axios.post('./api/login.php', { password: this.password })
+          .then(res => {
+            if (res.data.auth) {
+              this.auth = true;
+              this.start();
+            } else {
+              this.loginError = true;
+            }
+        });
+      } else {
+        this.loginError = true;
+      }
+    },
+    logout() {
+      axios.get('./api/logout.php')
+        .then(() => {
+          this.auth = false;
+          window.location.replace('/');
+      });
+    },
+    start() {
+      this.openPage(this.page);
+
+      axios.get('./api/pageList.php')
+        .then(res => {
+          this.pageList = res.data;
+      });
+
+      this.loadBackupList();
+    },
   },
   created() {
-    this.openPage(this.page)
-
-    axios.get('./api/pageList.php').then((res) => {
-      this.pageList = res.data;
+    axios.get('./api/checkAuth.php')
+      .then(res => {
+        if(res.data.auth) {
+          this.auth = res.data.auth;
+          this.start()
+        }
+        
     });
-
-    this.loadBackupList();
   },
 });
