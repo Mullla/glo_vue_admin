@@ -76,9 +76,7 @@ window.vue = new Vue({
           });
         })
         .then(() => {
-          window.editor.open(this.page, () => {
-            this.disableLoader();
-          });
+          this.openPage(this.page);
         });
     },
     applyMeta() {
